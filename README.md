@@ -1,0 +1,2 @@
+# NewsApp
+Practical project
