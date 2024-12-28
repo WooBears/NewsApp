@@ -1,7 +1,8 @@
 package com.example.newsapp.di
 
-import androidx.room.Insert
 import com.example.newsapp.data.remote.NewsApiService
+import com.example.newsapp.data.repository.NewsRepositoryImpl
+import com.example.newsapp.domain.repository.NewsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,7 +13,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -36,24 +36,21 @@ class AppModule {
     fun provideOkHttpClient(
         interceptor: Interceptor
     ) : OkHttpClient {
-         return OkHttpClient.Builder()
-             .addInterceptor {chain ->
-                 val request = chain.request().newBuilder()
-                     .addHeader(
-                         "X-Api-Key",
-                         "f1a4223cd8a04d5890ea957c8ec6d101"
-                     )
-                     .build()
-                 chain.proceed(request)
-             }
-             .connectTimeout(10L, TimeUnit.SECONDS)
-             .addInterceptor(interceptor)
-             .build()
+        return OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("X-Api-Key", "f1a4223cd8a04d5890ea957c8ec6d101")
+                    .build()
+                chain.proceed(request)
+            }
+            .connectTimeout(10L, TimeUnit.SECONDS)
+            .addInterceptor(interceptor)
+            .build()
     }
 
     @Provides
     @Singleton
-    fun provideInterceptor() : Interceptor {
+    fun provideInterceptor(): Interceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -61,7 +58,17 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideNewsApi(retrofit: Retrofit): NewsApiService {
+    fun provideNewsApi(
+        retrofit: Retrofit
+    ): NewsApiService {
         return retrofit.create(NewsApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNewsRepository(
+        apiService: NewsApiService
+    ): NewsRepository {
+        return NewsRepositoryImpl(apiService)
     }
 }

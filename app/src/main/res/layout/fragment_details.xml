@@ -1,13 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.details.DetailsFragment">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" />
+        android:orientation="vertical"
+        android:padding="10dp">
 
-</FrameLayout>
+        <ImageView
+            android:id="@+id/iv_pic_det"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:clipToOutline="true"
+            android:background="@drawable/iv_corners"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:padding="5dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_author_det"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:text="Amorim Diash"/>
+
+            <ImageView
+                android:id="@+id/iv_star_det"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:src="@drawable/bookmark"
+                android:layout_gravity="end"/>
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_date_det"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:text="20.12.2024"/>
+
+        <TextView
+            android:id="@+id/tv_description_des"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:text="Amorim Diash"/>
+
+        <TextView
+            android:id="@+id/tv_content_des"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:textSize="14dp"
+            android:text="Amorim Diash"/>
+    </LinearLayout>
+
+
+</ScrollView>
