@@ -65,7 +65,7 @@ class HomeFragment : Fragment() {
                 }
             })
         }catch (e: Exception){
-            Log.e("NewsFragment", "exception occurred: ${e.message}")
+            Log.e("HomeFragment", "exception occurred: ${e.message}")
         }
     }
 
