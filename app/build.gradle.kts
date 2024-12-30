@@ -93,4 +93,8 @@ dependencies {
     implementation (libs.androidx.room.ktx)
     kapt (libs.androidx.room.compiler)
 
+    //Paging
+    implementation (libs.androidx.paging.runtime)
+    testImplementation("androidx.paging:paging-common:3.3.5")
+
 }

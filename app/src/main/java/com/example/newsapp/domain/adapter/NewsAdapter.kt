@@ -1,7 +1,10 @@
 package com.example.newsapp.domain.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Recycler
 import com.bumptech.glide.Glide
@@ -13,15 +16,8 @@ import java.util.Locale
 
 class NewsAdapter(
     private val onClick: (Article) -> Unit
-) :  RecyclerView.Adapter<NewsAdapter.NewsViewHolder>(){
+) :  PagingDataAdapter< Article,NewsAdapter.NewsViewHolder>(NewsDiffCallBack()){
 
-    private var items = arrayListOf<Article>()
-
-    fun addNews(list: List<Article>){
-        items.clear()
-        items.addAll(list)
-        notifyDataSetChanged()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
         return NewsViewHolder(
@@ -32,11 +28,14 @@ class NewsAdapter(
     }
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
-        holder.bind(items[position])
-    }
-
-    override fun getItemCount(): Int {
-        return items.size
+//        val article = holder.bind(getItem(position)!!)
+//        Log.d("AdapterBinding", "Binding article: $article")
+        //holder.setIsRecyclable(false)
+        val article = getItem(position)
+        Log.d("AdapterBinding", "Binding article: $article")
+        if (article != null) {
+            holder.bind(article)
+        }
     }
 
     inner class NewsViewHolder(private var binding: NewsItemBinding) : RecyclerView.ViewHolder(binding.root){
@@ -59,6 +58,18 @@ class NewsAdapter(
                 onClick(article)
             }
         }
+    }
+
+    class NewsDiffCallBack : DiffUtil.ItemCallback<Article>() {
+
+        override fun areItemsTheSame(oldItem: Article, newItem: Article): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Article, newItem: Article): Boolean {
+            return oldItem == newItem
+        }
+
     }
 
 }

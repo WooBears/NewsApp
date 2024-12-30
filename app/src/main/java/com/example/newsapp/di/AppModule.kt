@@ -72,19 +72,22 @@ class AppModule {
     @Provides
     @Singleton
     fun provideNewsRepository(
+        newsDao: NewsDao,
         apiService: NewsApiService
     ): NewsRepository {
-        return NewsRepositoryImpl(apiService)
+        return NewsRepositoryImpl(newsDao,apiService)
     }
 
     @Provides
     @Singleton
-    fun provideRoomDatabase(@ApplicationContext appContext: Context) : NewsDatabase {
+    fun provideRoomDatabase(@ApplicationContext appContext: Context): NewsDatabase {
         return Room.databaseBuilder(
             appContext,
             NewsDatabase::class.java,
-            "news"
-        ).build()
+            "Article"
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
