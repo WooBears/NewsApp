@@ -19,6 +19,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import kotlin.math.log
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,6 +42,8 @@ class AppModule {
     fun provideOkHttpClient(
         interceptor: Interceptor
     ) : OkHttpClient {
+        val logging = HttpLoggingInterceptor()
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
@@ -48,6 +51,7 @@ class AppModule {
                     .build()
                 chain.proceed(request)
             }
+            .addInterceptor(logging)
             .connectTimeout(10L, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .build()

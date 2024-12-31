@@ -28,11 +28,7 @@ class NewsAdapter(
     }
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
-//        val article = holder.bind(getItem(position)!!)
-//        Log.d("AdapterBinding", "Binding article: $article")
-        //holder.setIsRecyclable(false)
         val article = getItem(position)
-        Log.d("AdapterBinding", "Binding article: $article")
         if (article != null) {
             holder.bind(article)
         }

@@ -35,7 +35,7 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
-    fun fetchFavorites(){
+    private fun fetchFavorites(){
         viewModelScope.launch(Dispatchers.IO) {
             _favorites.postValue(repository.getAllFavorites())
         }

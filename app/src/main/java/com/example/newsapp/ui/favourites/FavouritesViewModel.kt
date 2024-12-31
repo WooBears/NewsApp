@@ -19,17 +19,16 @@ class FavouritesViewModel @Inject constructor(
     private val _favorites = MutableLiveData<List<Article>>()
     val favorites: MutableLiveData<List<Article>> = _favorites
 
+    fun removeFavorites(articleId: Int){
+        viewModelScope.launch (Dispatchers.IO){
+            repository.removeFavorites(articleId)
+            fetchFavorites()
+        }
+    }
+
     fun fetchFavorites(){
         viewModelScope.launch(Dispatchers.IO) {
-//            _favorites.postValue(repository.getAllFavorites())
-//            Log.d("FavouritesViewModel", "Fetched favorites: $_favorites")
-            // Fetch the list of favorite articles from the database
             val favArticles = repository.getAllFavorites()
-
-            // Log the fetched data
-            Log.d("FavouritesViewModel", "Fetched favorites: $favArticles")
-
-            // Post the data to LiveData
             _favorites.postValue(favArticles)
         }
     }

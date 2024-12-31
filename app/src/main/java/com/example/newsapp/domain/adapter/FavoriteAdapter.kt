@@ -9,7 +9,10 @@ import com.example.newsapp.R
 import com.example.newsapp.databinding.NewsItemBinding
 import com.example.newsapp.domain.model.Article
 
-class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.FavoriteViewHolder>() {
+class FavoriteAdapter(
+    private val onLongClick: (Article) -> Unit,
+    private val onClick: (Article) -> Unit
+) : RecyclerView.Adapter<FavoriteAdapter.FavoriteViewHolder>() {
 
     private var items = arrayListOf<Article>()
 
@@ -54,6 +57,11 @@ class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.FavoriteViewHolder>
             binding.tvAuthor.text = article.author ?: "No Author"
             binding.tvDescription.text = article.description ?: "No Content"
             binding.tvDate.text = article.publishedAt
+
+            binding.root.setOnLongClickListener {
+                onLongClick(article)
+                true
+            }
 
         }
     }

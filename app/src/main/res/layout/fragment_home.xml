@@ -46,28 +46,40 @@
         app:singleSelection="true"> <!-- Set to false for multi-selection -->
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chipAll"
+            android:id="@+id/tv_general"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="All news" />
+            android:text="General" />
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chipPolitics"
+            android:id="@+id/tv_Business"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Politics" />
+            android:text="Business" />
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chipSport"
+            android:id="@+id/tv_sport"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sport" />
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chipEducation"
+            android:id="@+id/tv_education"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Education" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/tv_technology"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="technology" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/tv_entertainment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="entertainment" />
     </com.google.android.material.chip.ChipGroup>
 
     <TextView

@@ -29,4 +29,7 @@ interface NewsDao {
     @Query("SELECT * FROM ARTICLE WHERE isFavorite = 1")
     fun getAllFavorites(): List<Article>
 
+    @Query("SELECT * FROM Article WHERE title")
+    fun getSearchedResult(search: String) : List<Article>
+
 }

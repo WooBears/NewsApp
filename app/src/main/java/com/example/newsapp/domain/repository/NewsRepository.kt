@@ -10,4 +10,6 @@ interface NewsRepository {
     suspend fun addToFavorites(articleId: Int)
     suspend fun removeFavorites(articleId: Int)
     suspend fun getAllFavorites() : List<Article>
+    suspend fun getNewsByCategory(category: String): Result<List<Article>>
+
 }

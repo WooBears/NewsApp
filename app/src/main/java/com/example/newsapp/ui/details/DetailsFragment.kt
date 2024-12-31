@@ -31,14 +31,14 @@ class DetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDetailsBinding.inflate(inflater,container,false)
+        binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             findNavController().navigate(R.id.homeFragment)
         }
 
@@ -51,27 +51,31 @@ class DetailsFragment : Fragment() {
             binding.tvDescriptionDes.text = article.description
             binding.tvContentDes.text = article.content
         }
+        binding.ivStarDet.setImageResource(R.drawable.bookmark1)
 
-        // Observe the favorites list to update the UI
+
         viewModel.favorites.observe(viewLifecycleOwner, Observer { favorites ->
-            // Check if the current article is in the favorites list
+
             val isFavorite = favorites.any { it.id == article?.id }
+
             if (isFavorite) {
-                //binding.ivStarDet.setImageResource(R.drawable.ic_star_filled)
+                binding.ivStarDet.setImageResource(R.drawable.bookmark2)
             } else {
-                //binding.ivStarDet.setImageResource(R.drawable.ic_star_empty)
+                binding.ivStarDet.setImageResource(R.drawable.bookmark1)
             }
         })
 
-        // Handle star icon click to add/remove from favorites
         binding.ivStarDet.setOnClickListener {
+            article?.let { article ->
 
-                // If it's not a favorite, add it
-                Log.d("DetailsFragment", "Article ID: ${article?.id}")
-                viewModel.addFavorites(article!!.id)
+                if (viewModel.favorites.value?.any { it.id == article.id } == true) {
+
+                    viewModel.removeFavorites(article.id)
+                } else {
+
+                    viewModel.addFavorites(article.id)
+                }
+            }
         }
     }
-//        binding.ivStarDet.setOnClickListener {
-//            viewModel.addFavorites(article!!.id)
-//        }
 }

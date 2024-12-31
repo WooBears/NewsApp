@@ -15,6 +15,7 @@ import com.example.newsapp.databinding.FragmentHomeBinding
 import com.example.newsapp.domain.adapter.NewsAdapter
 import com.example.newsapp.domain.model.Article
 import com.example.newsapp.util.Result
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -43,6 +44,7 @@ class HomeFragment : Fragment() {
         binding.rvRecyclerView.adapter = newsAdapter
 
         bindNews("us")
+        setUpChipGroup()
 
     }
 
@@ -88,6 +90,60 @@ class HomeFragment : Fragment() {
                 }
                 Result.Status.LOADING -> {
 
+                }
+            }
+        }
+    }
+
+    private fun setUpChipGroup() {
+
+        binding.tvGeneral.setOnClickListener {
+            Log.d("HomeFragment", "General chip clicked")
+            fetchNewsByCategory("general")
+        }
+        binding.tvBusiness.setOnClickListener {
+            Log.d("HomeFragment", "Bus chip clicked")
+            fetchNewsByCategory("business")
+        }
+        binding.tvSport.setOnClickListener {
+            Log.d("HomeFragment", "spo chip clicked")
+            fetchNewsByCategory("sport")
+        }
+        binding.tvEducation.setOnClickListener {
+            Log.d("HomeFragment", "edu chip clicked")
+            fetchNewsByCategory("education")
+        }
+        binding.tvTechnology.setOnClickListener {
+            Log.d("HomeFragment", "tech chip clicked")
+            fetchNewsByCategory("technology")
+        }
+        binding.tvEntertainment.setOnClickListener {
+            Log.d("HomeFragment", "enter chip clicked")
+            fetchNewsByCategory("entertainment")
+        }
+   }
+
+    private fun fetchNewsByCategory(category: String) {
+        Log.d("HomeFragment", "Fetching news for category: $category")
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.getNewsByCategory(category).observe(viewLifecycleOwner) { result ->
+                when (result.status) {
+                    Result.Status.SUCCESS -> {
+                        val articles = result.data
+                        if (!articles.isNullOrEmpty()) {
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                newsAdapter.submitData(PagingData.from(articles))
+                            }
+                        } else {
+                            Log.d("HomeFragment", "No articles found for category: $category")
+                        }
+                    }
+                    Result.Status.ERROR -> {
+                        Log.e("HomeFragment", "Error fetching news for category: $category")
+                    }
+                    Result.Status.LOADING -> {
+                        Log.d("HomeFragment", "Loading news for category: $category")
+                    }
                 }
             }
         }

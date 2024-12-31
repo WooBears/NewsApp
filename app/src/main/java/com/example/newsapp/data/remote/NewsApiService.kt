@@ -9,4 +9,7 @@ interface NewsApiService {
 
     @GET("top-headlines?country=us")
     suspend fun getNews() : Response<NewsResponse>
+
+    @GET("top-headlines")
+    suspend fun getNewsByCategory(@Query("category") category: String) : Response<NewsResponse>
 }
