@@ -34,8 +34,10 @@ class HomeViewModel @Inject constructor(
         NewsPagingSource(repository)
     }.flow.cachedIn(viewModelScope)
 
-    fun getNews(country: String) : LiveData<Result<NewsResponse>>{
+    fun getNews(country: String) : LiveData<Result<List<Article>>>{
+
         return liveData(Dispatchers.IO) {
+            emit(Result.loading())
             try {
                 val result = repository.getNews(country)
                 emit(result)
@@ -47,6 +49,7 @@ class HomeViewModel @Inject constructor(
 
     fun getAllCachedNews() : LiveData<Result<List<Article>>>{
         return liveData (Dispatchers.IO) {
+            emit(Result.loading())
             try {
                 val result = repository.getAllCachedNews()
                 emit(result)
@@ -68,22 +71,3 @@ class HomeViewModel @Inject constructor(
     }
 
 }
-
-//    private val _selectedCategory = MutableLiveData<String>()
-//    val selectedCategory: LiveData<String> get() = _selectedCategory
-//
-//    private val _newsList = MediatorLiveData<Result<List<Article>>>()
-//    val newList: LiveData<Result<List<Article>>> get() = _newsList
-//
-//    init {
-//        // Observe the selected category and fetch news when it changes
-//        _newsList.addSource(_selectedCategory) { category ->
-//            viewModelScope.launch {
-//                _newsList.value = repository.getNewsByCategory(category)
-//            }
-//        }
-//    }
-//
-//    fun selectCategory(category: String) {
-//        _selectedCategory.value = category
-//    }

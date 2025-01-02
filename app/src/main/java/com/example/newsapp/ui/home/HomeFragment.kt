@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
@@ -27,13 +28,13 @@ class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var binding: FragmentHomeBinding
     private lateinit var newsAdapter: NewsAdapter
-
+    private var currentCategory: String = "us"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHomeBinding.inflate(inflater, container,false)
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -43,88 +44,84 @@ class HomeFragment : Fragment() {
         newsAdapter = NewsAdapter(this::onClick)
         binding.rvRecyclerView.adapter = newsAdapter
 
-        bindNews("us")
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            bindNews(currentCategory)
+        }
+        bindNews(currentCategory)
         setUpChipGroup()
 
     }
 
-    private fun bindNews(country: String) = lifecycleScope.launch (Dispatchers.Main) {
-        viewModel.getNews(country).observe(viewLifecycleOwner){result ->
+    private fun bindNews(country: String) = lifecycleScope.launch(Dispatchers.Main) {
+        viewModel.getNews(country).observe(viewLifecycleOwner) { result ->
 
             try {
-                when(result.status){
+                when (result.status) {
                     Result.Status.SUCCESS -> {
+                        binding.progressBarBannerDown.visibility = View.GONE
                         collectNewsList()
                     }
+
                     Result.Status.ERROR -> {
+                        binding.progressBarBannerDown.visibility = View.GONE
                         bindCachedNews()
                     }
-                    Result.Status.LOADING -> {
 
+                    Result.Status.LOADING -> {
+                        binding.progressBarBannerDown.visibility = View.VISIBLE
                     }
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
+                binding.progressBarBannerDown.visibility = View.GONE
                 bindCachedNews()
             }
 
+            binding.swipeRefreshLayout.isRefreshing = false
+
         }
     }
+
     private fun bindCachedNews() {
 
         viewModel.getAllCachedNews().observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 Result.Status.SUCCESS -> {
+                    binding.progressBarBannerDown.visibility = View.GONE
                     val cachedNews = result.data
                     if (!cachedNews.isNullOrEmpty()) {
-                        // If cached data exists, submit it to the adapter inside a coroutine
+                        // if cached data exists, submit it to the adapter
                         lifecycleScope.launch {
                             newsAdapter.submitData(PagingData.from(cachedNews))
-                            Log.d("CachedNews", "Cached data: ${cachedNews.size} articles")
                         }
                     } else {
 
                     }
                 }
+
                 Result.Status.ERROR -> {
-
+                    binding.progressBarBannerDown.visibility = View.GONE
                 }
-                Result.Status.LOADING -> {
 
+                Result.Status.LOADING -> {
+                    binding.progressBarBannerDown.visibility = View.VISIBLE
                 }
             }
+            binding.swipeRefreshLayout.isRefreshing = false
         }
     }
 
     private fun setUpChipGroup() {
-
-        binding.tvGeneral.setOnClickListener {
-            Log.d("HomeFragment", "General chip clicked")
-            fetchNewsByCategory("general")
+        binding.apply {
+            tvGeneral.setOnClickListener { fetchNewsByCategory("general") }
+            tvBusiness.setOnClickListener { fetchNewsByCategory("business") }
+            tvSport.setOnClickListener { fetchNewsByCategory("sport") }
+            tvTechnology.setOnClickListener { fetchNewsByCategory("technology") }
+            tvEntertainment.setOnClickListener { fetchNewsByCategory("entertainment") }
         }
-        binding.tvBusiness.setOnClickListener {
-            Log.d("HomeFragment", "Bus chip clicked")
-            fetchNewsByCategory("business")
-        }
-        binding.tvSport.setOnClickListener {
-            Log.d("HomeFragment", "spo chip clicked")
-            fetchNewsByCategory("sport")
-        }
-        binding.tvEducation.setOnClickListener {
-            Log.d("HomeFragment", "edu chip clicked")
-            fetchNewsByCategory("education")
-        }
-        binding.tvTechnology.setOnClickListener {
-            Log.d("HomeFragment", "tech chip clicked")
-            fetchNewsByCategory("technology")
-        }
-        binding.tvEntertainment.setOnClickListener {
-            Log.d("HomeFragment", "enter chip clicked")
-            fetchNewsByCategory("entertainment")
-        }
-   }
+    }
 
     private fun fetchNewsByCategory(category: String) {
-        Log.d("HomeFragment", "Fetching news for category: $category")
+        3
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.getNewsByCategory(category).observe(viewLifecycleOwner) { result ->
                 when (result.status) {
@@ -137,25 +134,33 @@ class HomeFragment : Fragment() {
                         } else {
                             Log.d("HomeFragment", "No articles found for category: $category")
                         }
+                        binding.progressBarBannerDown.visibility = View.GONE
                     }
+
                     Result.Status.ERROR -> {
-                        Log.e("HomeFragment", "Error fetching news for category: $category")
+                        binding.progressBarBannerDown.visibility = View.GONE
                     }
+
                     Result.Status.LOADING -> {
-                        Log.d("HomeFragment", "Loading news for category: $category")
+                        binding.progressBarBannerDown.visibility = View.VISIBLE
                     }
+
                 }
+                binding.swipeRefreshLayout.isRefreshing = false
             }
         }
     }
-    private fun collectNewsList(){
+
+    private fun collectNewsList() {
         lifecycleScope.launch {
             viewModel.newsList.collectLatest { pagingData ->
                 newsAdapter.submitData(pagingData)
             }
         }
     }
-    private fun onClick(article: Article){
+
+    private fun onClick(article: Article) {
+        findNavController().popBackStack()
         val bundle = Bundle().apply {
             putParcelable("article", article)
         }

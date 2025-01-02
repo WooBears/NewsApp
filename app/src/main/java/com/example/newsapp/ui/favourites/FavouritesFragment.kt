@@ -13,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
 import com.example.newsapp.R
 import com.example.newsapp.databinding.FragmentFavouritesBinding
-import com.example.newsapp.domain.adapter.FavoriteAdapter
 import com.example.newsapp.domain.adapter.NewsAdapter
 import com.example.newsapp.domain.model.Article
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +23,6 @@ import kotlinx.coroutines.launch
 class FavouritesFragment : Fragment() {
 
     private val viewModel: FavouritesViewModel by viewModels()
-    //private lateinit var favoriteAdapter: FavoriteAdapter
     private lateinit var newsAdapter: NewsAdapter
     private lateinit var binding: FragmentFavouritesBinding
 
@@ -40,7 +38,6 @@ class FavouritesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //favoriteAdapter = FavoriteAdapter(this::onLongClick)
         newsAdapter = NewsAdapter(this::onLongClick)
         binding.rvRecyclerView.adapter = newsAdapter
 
@@ -54,6 +51,7 @@ class FavouritesFragment : Fragment() {
         viewModel.fetchFavorites()
     }
 
+    // implementing the removal of an article from FavouritesFragment by longClick
     private fun onLongClick(article: Article){
         AlertDialog.Builder(requireContext())
             .setTitle("Remove Favorite")

@@ -1,5 +1,6 @@
 package com.example.newsapp.data.local
 
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -12,24 +13,24 @@ import retrofit2.http.DELETE
 interface NewsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertALl(articles: List<Article>)
+    suspend fun insertALl(articles: List<Article>)
 
     @Query("SELECT * FROM Article")
-    fun getAll() : List<Article>
+    suspend fun getAll() : List<Article>
 
     @Query("DELETE FROM Article")
-    fun clearAll()
+    suspend fun clearAll()
 
     @Query("UPDATE Article SET isFavorite = 1 WHERE id = :articleId")
-    fun addToFavourites(articleId: Int)
+    suspend fun addToFavourites(articleId: Int)
 
     @Query("UPDATE Article SET isFavorite = 0 WHERE id = :articleId")
-    fun removeFavourites(articleId: Int)
+    suspend fun removeFavourites(articleId: Int)
 
     @Query("SELECT * FROM ARTICLE WHERE isFavorite = 1")
-    fun getAllFavorites(): List<Article>
+    suspend fun getAllFavorites(): List<Article>
 
-    @Query("SELECT * FROM Article WHERE title")
-    fun getSearchedResult(search: String) : List<Article>
+    @Query("SELECT * FROM Article WHERE title LIKE '%' || :search || '%' COLLATE NOCASE" )
+    suspend fun getSearchedResult(search: String): List<Article>
 
 }

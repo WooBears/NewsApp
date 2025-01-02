@@ -14,13 +14,8 @@
     <fragment
         android:id="@+id/favouritesFragment"
         android:name="com.example.newsapp.ui.favourites.FavouritesFragment"
-        android:label="fragment_favourites"
+        android:label="Fragment Favourites"
         tools:layout="@layout/fragment_favourites" />
-    <fragment
-        android:id="@+id/filterFragment"
-        android:name="com.example.newsapp.ui.filter.FilterFragment"
-        android:label="fragment_filter"
-        tools:layout="@layout/fragment_filter" />
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.newsapp.ui.home.HomeFragment"
@@ -33,6 +28,6 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.newsapp.ui.search.SearchFragment"
-        android:label="fragment_search"
+        android:label="Search"
         tools:layout="@layout/fragment_search" />
 </navigation>

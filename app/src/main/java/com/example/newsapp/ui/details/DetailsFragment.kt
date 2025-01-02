@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.newsapp.R
@@ -22,10 +23,6 @@ class DetailsFragment : Fragment() {
     private val viewModel: DetailsViewModel by viewModels()
     private lateinit var binding: FragmentDetailsBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,32 +47,33 @@ class DetailsFragment : Fragment() {
             binding.tvDateDet.text = article.publishedAt
             binding.tvDescriptionDes.text = article.description
             binding.tvContentDes.text = article.content
+
+            viewModel.fetchFavorites()
         }
-        binding.ivStarDet.setImageResource(R.drawable.bookmark1)
 
+        viewModel.favorites.observe(viewLifecycleOwner) { favorites ->
+            val currentArticleId = article?.id ?: -1
 
-        viewModel.favorites.observe(viewLifecycleOwner, Observer { favorites ->
+            // check if the current article is in favorites
+            val isFavorite = favorites.any { it.id == currentArticleId }
 
-            val isFavorite = favorites.any { it.id == article?.id }
-
-            if (isFavorite) {
-                binding.ivStarDet.setImageResource(R.drawable.bookmark2)
-            } else {
-                binding.ivStarDet.setImageResource(R.drawable.bookmark1)
-            }
-        })
+            binding.ivStarDet.setImageResource(
+                if (isFavorite) R.drawable.bookmark2 else R.drawable.bookmark1
+            )
+        }
 
         binding.ivStarDet.setOnClickListener {
-            article?.let { article ->
+            article?.let { currentArticle ->
+                val currentFavorites = viewModel.favorites.value.orEmpty()
+                val isCurrentlyFavorite = currentFavorites.any { it.id == currentArticle.id }
 
-                if (viewModel.favorites.value?.any { it.id == article.id } == true) {
-
-                    viewModel.removeFavorites(article.id)
+                if (isCurrentlyFavorite) {
+                    viewModel.removeFavorites(currentArticle.id)
                 } else {
-
-                    viewModel.addFavorites(article.id)
+                    viewModel.addFavorites(currentArticle.id)
                 }
-            }
+            } ?: Log.e("DetailsFragment", "Article is null, cannot add/remove from favorites")
         }
+
     }
 }

@@ -10,4 +10,9 @@
         android:id="@+id/favouritesFragment"
         android:icon="@drawable/bookmark"
         android:title="Favourites"/>
+
+    <item
+        android:id="@+id/searchFragment"
+        android:icon="@drawable/search"
+        android:title="Search" />
 </menu>

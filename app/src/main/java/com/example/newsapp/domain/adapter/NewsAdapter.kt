@@ -16,7 +16,7 @@ import java.util.Locale
 
 class NewsAdapter(
     private val onClick: (Article) -> Unit
-) :  PagingDataAdapter< Article,NewsAdapter.NewsViewHolder>(NewsDiffCallBack()){
+) : PagingDataAdapter<Article, NewsAdapter.NewsViewHolder>(NewsDiffCallBack()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
@@ -29,20 +29,22 @@ class NewsAdapter(
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         val article = getItem(position)
+
         if (article != null) {
             holder.bind(article)
         }
     }
 
-    inner class NewsViewHolder(private var binding: NewsItemBinding) : RecyclerView.ViewHolder(binding.root){
+    inner class NewsViewHolder(private var binding: NewsItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(article: Article){
+        fun bind(article: Article) {
 
-            if (!article.urlToImage.isNullOrEmpty()){
+            if (!article.urlToImage.isNullOrEmpty()) {
                 Glide.with(binding.root)
                     .load(article.urlToImage)
                     .into(binding.ivNewsImage)
-            }else {
+            } else {
                 binding.ivNewsImage.setImageResource(R.drawable.iv_corners)
             }
 
@@ -67,5 +69,4 @@ class NewsAdapter(
         }
 
     }
-
 }

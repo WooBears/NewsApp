@@ -8,12 +8,15 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "Article", indices = [Index(value = ["id"], unique = true)])
+@Entity(
+    tableName = "Article",
+    indices = [Index(value = ["id"], unique = true)]
+)
 @TypeConverters(Converters::class)
 @Parcelize
 data class Article(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int = 0,
     val source: Source,
     val author: String?,
     val title: String,
@@ -22,5 +25,6 @@ data class Article(
     val urlToImage: String?,
     val publishedAt: String,
     val content: String?,
-    @ColumnInfo(defaultValue = "0") val isFavorite: Boolean = false
+    @ColumnInfo(defaultValue = "false")
+    var isFavorite: Boolean = false
 ) : Parcelable
