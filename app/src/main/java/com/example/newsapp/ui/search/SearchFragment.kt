@@ -16,7 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
 import com.example.newsapp.R
 import com.example.newsapp.databinding.FragmentSearchBinding
-import com.example.newsapp.domain.adapter.NewsAdapter
+import com.example.newsapp.ui.adapter.NewsAdapter
 import com.example.newsapp.domain.model.Article
 import com.example.newsapp.util.Result
 import dagger.hilt.android.AndroidEntryPoint

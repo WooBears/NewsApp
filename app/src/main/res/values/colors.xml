@@ -10,4 +10,6 @@
     <color name="lightGrey">#efefef</color>
     <color name="grey">#919191</color>
     <color name="blue">#FF0000FF</color>
+    <color name="chip_selected">#008b86</color>
+    <color name="chip_unselected">#E0E0E0</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.newsapp.domain.adapter
+package com.example.newsapp.ui.adapter
 
 import android.util.Log
 import android.view.LayoutInflater

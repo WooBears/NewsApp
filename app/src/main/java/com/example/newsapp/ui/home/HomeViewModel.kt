@@ -3,6 +3,7 @@ package com.example.newsapp.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -34,6 +35,8 @@ class HomeViewModel @Inject constructor(
         NewsPagingSource(repository)
     }.flow.cachedIn(viewModelScope)
 
+    var isDataLoaded = false
+
     fun getNews(country: String) : LiveData<Result<List<Article>>>{
 
         return liveData(Dispatchers.IO) {
@@ -41,6 +44,7 @@ class HomeViewModel @Inject constructor(
             try {
                 val result = repository.getNews(country)
                 emit(result)
+                isDataLoaded = true
             }catch (e: Exception){
                 emit(Result.error(e.message ?: "Unknown error"))
             }
@@ -68,6 +72,9 @@ class HomeViewModel @Inject constructor(
                 emit(Result.error(e.message ?: "Unknown error "))
             }
         }
+    }
+    fun resetDataLoaded() {
+        isDataLoaded = false
     }
 
 }

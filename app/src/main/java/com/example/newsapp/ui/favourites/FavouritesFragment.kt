@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
 import com.example.newsapp.R
 import com.example.newsapp.databinding.FragmentFavouritesBinding
-import com.example.newsapp.domain.adapter.NewsAdapter
+import com.example.newsapp.ui.adapter.NewsAdapter
 import com.example.newsapp.domain.model.Article
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers

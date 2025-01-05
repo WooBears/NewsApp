@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
 import com.example.newsapp.R
 import com.example.newsapp.databinding.FragmentHomeBinding
-import com.example.newsapp.domain.adapter.NewsAdapter
+import com.example.newsapp.ui.adapter.NewsAdapter
 import com.example.newsapp.domain.model.Article
 import com.example.newsapp.util.Result
 import com.google.android.material.chip.Chip
@@ -44,11 +44,21 @@ class HomeFragment : Fragment() {
         newsAdapter = NewsAdapter(this::onClick)
         binding.rvRecyclerView.adapter = newsAdapter
 
+
         binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.resetDataLoaded()
             bindNews(currentCategory)
         }
-        bindNews(currentCategory)
+
+        // check if data is loaded, if not call bindNews, else bindCachedNews
+        if (!viewModel.isDataLoaded) {
+            bindNews(currentCategory)
+        } else {
+            bindCachedNews()
+        }
+
         setUpChipGroup()
+        setDefaultChip()
 
     }
 
@@ -109,16 +119,60 @@ class HomeFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = false
         }
     }
+    private fun updateChipSelection(selectedChip: Chip) {
+        val chips = listOf(
+            binding.tvGeneral,
+            binding.tvBusiness,
+            binding.tvSport,
+            binding.tvTechnology,
+            binding.tvEntertainment
+        )
+
+        chips.forEach { chip ->
+            chip.isChecked = false
+            chip.setChipBackgroundColorResource(R.color.chip_unselected)
+        }
+
+        // Mark the selected chip as checked and set its background to selected
+        selectedChip.isChecked = true
+        selectedChip.setChipBackgroundColorResource(R.color.chip_selected)
+    }
+
+    private fun setDefaultChip() {
+        // Set a default chip to be selected when the fragment is first created
+        val defaultChip = binding.tvGeneral
+        updateChipSelection(defaultChip)
+    }
 
     private fun setUpChipGroup() {
         binding.apply {
-            tvGeneral.setOnClickListener { fetchNewsByCategory("general") }
-            tvBusiness.setOnClickListener { fetchNewsByCategory("business") }
-            tvSport.setOnClickListener { fetchNewsByCategory("sport") }
-            tvTechnology.setOnClickListener { fetchNewsByCategory("technology") }
-            tvEntertainment.setOnClickListener { fetchNewsByCategory("entertainment") }
+            val chips = listOf(tvGeneral, tvBusiness, tvSport, tvTechnology, tvEntertainment)
+
+            chips.forEach { chip ->
+                chip.setOnClickListener {
+                    fetchNewsByCategory(chip.text.toString().lowercase())
+                    updateChipSelection(chip)
+                }
+            }
         }
     }
+
+//    private fun updateChipSelection(selectedChip: Chip) {
+//        val chips = listOf(
+//            binding.tvGeneral,
+//            binding.tvBusiness,
+//            binding.tvSport,
+//            binding.tvTechnology,
+//            binding.tvEntertainment
+//        )
+//        chips.forEach { chip ->
+//            chip.isChecked = false
+//            chip.setChipBackgroundColorResource(R.color.chip_unselected)
+//        }
+//
+//        selectedChip.isChecked = true
+//        selectedChip.setChipBackgroundColorResource(R.color.chip_selected)
+//    }
 
     private fun fetchNewsByCategory(category: String) {
         3
