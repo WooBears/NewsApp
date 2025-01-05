@@ -47,12 +47,14 @@ class AppModule {
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .addHeader("X-Api-Key", "f1a4223cd8a04d5890ea957c8ec6d101")
+                    .addHeader("X-Api-Key", "d0f148d00e0c4a36b0dfcf4e372ed97c")
                     .build()
                 chain.proceed(request)
             }
             .addInterceptor(logging)
-            .connectTimeout(10L, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .build()
     }
@@ -76,10 +78,10 @@ class AppModule {
     @Provides
     @Singleton
     fun provideNewsRepository(
-        newsDao: NewsDao,
-        apiService: NewsApiService
+        apiService: NewsApiService,
+        newsDatabase: NewsDatabase,
     ): NewsRepository {
-        return NewsRepositoryImpl(newsDao,apiService)
+        return NewsRepositoryImpl(apiService,newsDatabase)
     }
 
     @Provides

@@ -26,5 +26,6 @@ data class Article(
     val publishedAt: String,
     val content: String?,
     @ColumnInfo(defaultValue = "false")
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    //var category: String? = null
 ) : Parcelable

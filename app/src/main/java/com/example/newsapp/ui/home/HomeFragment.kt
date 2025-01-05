@@ -1,5 +1,6 @@
 package com.example.newsapp.ui.home
 
+import android.content.res.Configuration
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.util.Log
@@ -8,18 +9,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.example.newsapp.R
 import com.example.newsapp.databinding.FragmentHomeBinding
 import com.example.newsapp.ui.adapter.NewsAdapter
 import com.example.newsapp.domain.model.Article
-import com.example.newsapp.util.Result
 import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -27,98 +30,54 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var newsAdapter: NewsAdapter
-    private var currentCategory: String = "us"
+    private val newsAdapter: NewsAdapter by lazy { NewsAdapter(this::onClick) }
+    private var isLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        binding.rvRecyclerView.adapter = newsAdapter
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        newsAdapter = NewsAdapter(this::onClick)
-        binding.rvRecyclerView.adapter = newsAdapter
-
-
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.resetDataLoaded()
-            bindNews(currentCategory)
-        }
-
-        // check if data is loaded, if not call bindNews, else bindCachedNews
-        if (!viewModel.isDataLoaded) {
-            bindNews(currentCategory)
-        } else {
-            bindCachedNews()
-        }
-
         setUpChipGroup()
-        setDefaultChip()
 
-    }
+        newsAdapter.addLoadStateListener { loadState ->
+            // show or hide progress bar based on the loading state
+            val isLoading = loadState.append is LoadState.Loading
+            binding.progressbar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
 
-    private fun bindNews(country: String) = lifecycleScope.launch(Dispatchers.Main) {
-        viewModel.getNews(country).observe(viewLifecycleOwner) { result ->
-
-            try {
-                when (result.status) {
-                    Result.Status.SUCCESS -> {
-                        binding.progressBarBannerDown.visibility = View.GONE
-                        collectNewsList()
-                    }
-
-                    Result.Status.ERROR -> {
-                        binding.progressBarBannerDown.visibility = View.GONE
-                        bindCachedNews()
-                    }
-
-                    Result.Status.LOADING -> {
-                        binding.progressBarBannerDown.visibility = View.VISIBLE
-                    }
-                }
-            } catch (e: Exception) {
-                binding.progressBarBannerDown.visibility = View.GONE
-                bindCachedNews()
-            }
-
-            binding.swipeRefreshLayout.isRefreshing = false
-
+        // restore state or set default chip
+        if (viewModel.currentCategory == null) {
+            setDefaultChip()
+        } else {
+            restoreChipSelection(viewModel.currentCategory!!)
         }
     }
 
-    private fun bindCachedNews() {
 
-        viewModel.getAllCachedNews().observe(viewLifecycleOwner) { result ->
-            when (result.status) {
-                Result.Status.SUCCESS -> {
-                    binding.progressBarBannerDown.visibility = View.GONE
-                    val cachedNews = result.data
-                    if (!cachedNews.isNullOrEmpty()) {
-                        // if cached data exists, submit it to the adapter
-                        lifecycleScope.launch {
-                            newsAdapter.submitData(PagingData.from(cachedNews))
-                        }
-                    } else {
+    private fun fetchNewsByCategory(category: String) {
+        if (category != viewModel.currentCategory) {
+            viewModel.currentCategory = category // save category in ViewModel
+            isLoading = true
 
+            viewModel.getPagingNewsByCategory(category).observe(viewLifecycleOwner) { result ->
+                lifecycleScope.launch {
+                    result?.let {
+                        newsAdapter.submitData(it)
+                        isLoading = false
                     }
                 }
-
-                Result.Status.ERROR -> {
-                    binding.progressBarBannerDown.visibility = View.GONE
-                }
-
-                Result.Status.LOADING -> {
-                    binding.progressBarBannerDown.visibility = View.VISIBLE
-                }
             }
-            binding.swipeRefreshLayout.isRefreshing = false
         }
     }
+
     private fun updateChipSelection(selectedChip: Chip) {
         val chips = listOf(
             binding.tvGeneral,
@@ -133,91 +92,85 @@ class HomeFragment : Fragment() {
             chip.setChipBackgroundColorResource(R.color.chip_unselected)
         }
 
-        // Mark the selected chip as checked and set its background to selected
         selectedChip.isChecked = true
         selectedChip.setChipBackgroundColorResource(R.color.chip_selected)
     }
 
     private fun setDefaultChip() {
-        // Set a default chip to be selected when the fragment is first created
         val defaultChip = binding.tvGeneral
+        fetchNewsByCategory(defaultChip.text.toString().lowercase())
         updateChipSelection(defaultChip)
+        updateChipTextColor()
+    }
+
+    private fun restoreChipSelection(category: String) {
+        val chipCategoryMap = mapOf(
+            binding.tvGeneral to "general",
+            binding.tvBusiness to "business",
+            binding.tvSport to "sport",
+            binding.tvTechnology to "technology",
+            binding.tvEntertainment to "entertainment"
+        )
+
+        chipCategoryMap.forEach { (chip, chipCategory) ->
+            if (chipCategory == category) {
+                fetchNewsByCategory(chipCategory)
+                updateChipSelection(chip)
+            }
+        }
+        updateChipTextColor()
     }
 
     private fun setUpChipGroup() {
-        binding.apply {
-            val chips = listOf(tvGeneral, tvBusiness, tvSport, tvTechnology, tvEntertainment)
+        val chipCategoryMap = mapOf(
+            binding.tvGeneral to "general",
+            binding.tvBusiness to "business",
+            binding.tvSport to "sport",
+            binding.tvTechnology to "technology",
+            binding.tvEntertainment to "entertainment"
+        )
 
-            chips.forEach { chip ->
-                chip.setOnClickListener {
-                    fetchNewsByCategory(chip.text.toString().lowercase())
-                    updateChipSelection(chip)
-                }
+        chipCategoryMap.forEach { (chip, category) ->
+            chip.setOnClickListener {
+                fetchNewsByCategory(category)
+                updateChipSelection(chip)
             }
         }
+        updateChipTextColor()
     }
 
-//    private fun updateChipSelection(selectedChip: Chip) {
-//        val chips = listOf(
-//            binding.tvGeneral,
-//            binding.tvBusiness,
-//            binding.tvSport,
-//            binding.tvTechnology,
-//            binding.tvEntertainment
-//        )
-//        chips.forEach { chip ->
-//            chip.isChecked = false
-//            chip.setChipBackgroundColorResource(R.color.chip_unselected)
-//        }
-//
-//        selectedChip.isChecked = true
-//        selectedChip.setChipBackgroundColorResource(R.color.chip_selected)
-//    }
-
-    private fun fetchNewsByCategory(category: String) {
-        3
-        lifecycleScope.launch(Dispatchers.Main) {
-            viewModel.getNewsByCategory(category).observe(viewLifecycleOwner) { result ->
-                when (result.status) {
-                    Result.Status.SUCCESS -> {
-                        val articles = result.data
-                        if (!articles.isNullOrEmpty()) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                newsAdapter.submitData(PagingData.from(articles))
-                            }
-                        } else {
-                            Log.d("HomeFragment", "No articles found for category: $category")
-                        }
-                        binding.progressBarBannerDown.visibility = View.GONE
-                    }
-
-                    Result.Status.ERROR -> {
-                        binding.progressBarBannerDown.visibility = View.GONE
-                    }
-
-                    Result.Status.LOADING -> {
-                        binding.progressBarBannerDown.visibility = View.VISIBLE
-                    }
-
-                }
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
+    private fun updateChipTextColor() {
+        val chipTextColor = if (isDarkMode()) {
+            ContextCompat.getColor(requireContext(), R.color.chip_text_light)
+        } else {
+            ContextCompat.getColor(requireContext(), R.color.chip_text_dark)
         }
-    }
 
-    private fun collectNewsList() {
-        lifecycleScope.launch {
-            viewModel.newsList.collectLatest { pagingData ->
-                newsAdapter.submitData(pagingData)
-            }
+        val chips = listOf(
+            binding.tvGeneral,
+            binding.tvBusiness,
+            binding.tvSport,
+            binding.tvTechnology,
+            binding.tvEntertainment
+        )
+
+        chips.forEach { chip ->
+            chip.setTextColor(chipTextColor)
         }
     }
 
     private fun onClick(article: Article) {
-        findNavController().popBackStack()
         val bundle = Bundle().apply {
             putParcelable("article", article)
         }
-        findNavController().navigate(R.id.detailsFragment, bundle)
+
+        val options = NavOptions.Builder()
+            .setPopUpTo(R.id.homeFragment, false)
+            .build()
+        findNavController().navigate(R.id.detailsFragment, bundle, options)
+    }
+
+    private fun isDarkMode(): Boolean {
+        return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
 }

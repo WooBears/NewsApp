@@ -1,6 +1,7 @@
 package com.example.newsapp.data.local
 
 import android.util.Log
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -16,7 +17,7 @@ interface NewsDao {
     suspend fun insertALl(articles: List<Article>)
 
     @Query("SELECT * FROM Article")
-    suspend fun getAll() : List<Article>
+    fun getAll() : PagingSource<Int, Article>
 
     @Query("DELETE FROM Article")
     suspend fun clearAll()
@@ -32,5 +33,8 @@ interface NewsDao {
 
     @Query("SELECT * FROM Article WHERE title LIKE '%' || :search || '%' COLLATE NOCASE" )
     suspend fun getSearchedResult(search: String): List<Article>
+
+    @Query("SELECT * FROM Article")
+    fun getArticlesByCategory() : PagingSource<Int, Article>
 
 }

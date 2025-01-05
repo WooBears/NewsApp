@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
@@ -18,6 +19,7 @@ import com.example.newsapp.domain.model.Article
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class FavouritesFragment : Fragment() {
@@ -52,11 +54,11 @@ class FavouritesFragment : Fragment() {
     }
 
     // implementing the removal of an article from FavouritesFragment by longClick
-    private fun onLongClick(article: Article){
+    private fun onLongClick(article: Article) {
         AlertDialog.Builder(requireContext())
             .setTitle("Remove Favorite")
             .setMessage("Do you want to remove the ${article.title} from favorites?")
-            .setPositiveButton("Yes"){_,_ ->
+            .setPositiveButton("Yes") { _, _ ->
                 viewModel.removeFavorites(article.id)
             }
             .setNegativeButton("No", null)

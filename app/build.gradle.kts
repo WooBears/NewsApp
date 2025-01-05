@@ -97,4 +97,6 @@ dependencies {
     implementation (libs.androidx.paging.runtime)
     testImplementation("androidx.paging:paging-common:3.3.5")
 
+    implementation ("androidx.room:room-paging:2.6.1")
+
 }

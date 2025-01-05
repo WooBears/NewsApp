@@ -18,13 +18,13 @@ class SearchViewModel @Inject constructor(
     private val newsRepository: NewsRepository
 ) : ViewModel() {
 
-    fun getSearched(search: String) : LiveData<Result<List<Article>>>{
-        return liveData (Dispatchers.IO){
+    fun getSearched(search: String): LiveData<Result<List<Article>>> {
+        return liveData(Dispatchers.IO) {
             try {
                 val result = newsRepository.getSearchedResult(search)
 
                 emit(result)
-            }catch (e: Exception){
+            } catch (e: Exception) {
 
                 emit(Result.error(e.message ?: "Unknown error"))
             }

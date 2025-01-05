@@ -12,4 +12,12 @@
     <color name="blue">#FF0000FF</color>
     <color name="chip_selected">#008b86</color>
     <color name="chip_unselected">#E0E0E0</color>
+    <color name="primaryColor">#6200EE</color>
+    <color name="primaryDarkColor">#3700B3</color>
+    <color name="accentColor">#03DAC5</color>
+    <color name="chip_text_light">#000000</color>
+    <color name="chip_text_dark">#FFFFFF</color>
+    <color name="icon_color_light">#FF0000</color>
+    <color name="icon_color_dark">#FFFFFF</color>
+
 </resources>

@@ -10,6 +10,7 @@
         android:layout_width="160dp"
         android:layout_height="100dp"
         android:background="@drawable/iv_corners"
+        android:scaleType="centerCrop"
         android:clipToOutline="true"/>
 
     <LinearLayout

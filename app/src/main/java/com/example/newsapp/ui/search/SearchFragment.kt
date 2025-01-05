@@ -66,10 +66,15 @@ class SearchFragment : Fragment() {
                         newsAdapter.submitData(PagingData.from(article))
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Something went wrong, Error: ${result.message} ", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Something went wrong, Error: ${result.message} ",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             } ?: run {
-                Toast.makeText(requireContext(), "No data found or error", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "No data found or error", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
